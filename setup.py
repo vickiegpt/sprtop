@@ -24,14 +24,25 @@ class cmake_build_ext(build_ext):
         build_temp = os.path.abspath(self.build_temp)
         path_to_source = os.path.dirname(os.path.realpath(__file__))
 
+        # Get pybind11 cmake dir
+        try:
+            import pybind11
+            pybind11_dir = pybind11.get_cmake_dir()
+        except ImportError:
+            pybind11_dir = ""
+
         # Call cmake
         args = [
             f"cmake",
             f"-DCMAKE_BUILD_TYPE=Release",
+            f"-DCMAKE_C_COMPILER=/usr/bin/gcc-13",
+            f"-DCMAKE_CXX_COMPILER=/usr/bin/g++-13",
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DPYTHON_LIBRARY_OUTPUT_DIRECTORY={build_temp}",
-            path_to_source,
         ]
+        if pybind11_dir:
+            args.append(f"-Dpybind11_DIR={pybind11_dir}")
+        args.append(path_to_source)
         print(" ".join(args))
         subprocess.call(args, cwd=build_temp)
 
@@ -66,6 +77,11 @@ setup(
     author_email="victoryang00@ucsc.edu",
     install_requires=["pybind11>=2.4"],
     ext_modules=ext_modules,
-     cmdclass={"build_ext": cmake_build_ext},
+    cmdclass={"build_ext": cmake_build_ext},
     packages=find_packages(),
+    entry_points={
+        "console_scripts": [
+            "sprtop=sprtop:run",
+        ],
+    },
 )

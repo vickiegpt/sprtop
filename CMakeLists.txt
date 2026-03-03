@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 project(sprtop_core)
 
-set(CMAKE_CXX_STANDARD 26)
+# We need C++23 for std::views::enumerate, std::format, std::ranges.
+# Force C++23 flag globally so pybind11 sees it and doesn't override.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2b")
 find_package(Threads REQUIRED)
 find_package(pybind11 REQUIRED CONFIG)
 pybind11_add_module(sprtop_core lib/sprtop_core.cpp)

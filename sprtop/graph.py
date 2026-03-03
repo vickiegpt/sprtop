@@ -1,7 +1,22 @@
 class SPRTopMap:
     def __init__(self, contexts, cores, maps):
         self.data = [contexts, cores, maps]
-        self.width = max(max(map(len, sublist)) for sublist in self.data) + 2  # Padding
+        # Compute max number of columns across all sections
+        self.num_cols = max(
+            max((len(row) for row in section), default=0) for section in self.data
+        )
+        # Pad all rows to have the same number of columns
+        for section in self.data:
+            for row in section:
+                while len(row) < self.num_cols:
+                    row.append("")
+        # Compute column width from content
+        self.width = 2
+        for section in self.data:
+            for row in section:
+                for item in row:
+                    self.width = max(self.width, len(str(item)))
+        self.width += 2  # Padding
 
     def _draw_line(self, content_list):
         """Return a formatted line for a given content list."""
@@ -14,10 +29,8 @@ class SPRTopMap:
         middle = "╦" if is_top or is_bottom else "╬"
         line_piece = "═" * (self.width + 2)
 
-        # Create segments for each column
-        segments = [line_piece for _ in self.data[0]]
+        segments = [line_piece for _ in range(self.num_cols)]
 
-        # Intersperse segments with middle dividers
         result_parts = []
         for segment in segments[:-1]:
             result_parts.append(segment)
@@ -29,15 +42,12 @@ class SPRTopMap:
     def display(self):
         print(self._draw_separator(is_top=True))
 
-        # Iterate through each section and print its content
         for section in self.data:
             for i, line in enumerate(section):
-                # If this is not the first line of the section, add a thin separator
                 if i > 0:
                     print(self._draw_separator())
                 print(self._draw_line(line))
 
-            # After each section (except the last), add a thick separator
             if section != self.data[-1]:
                 print(self._draw_separator())
 
