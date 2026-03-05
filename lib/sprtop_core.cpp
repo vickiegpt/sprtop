@@ -165,8 +165,8 @@ public:
 
         int num_sockets = detect_num_sockets();
 
-        // Run the CHA mapping analysis
-        coremap_ = get_coremapping(topology_grid_, num_active_chas, num_sockets);
+        // Run the CHA mapping analysis for this socket
+        coremap_ = get_coremapping(topology_grid_, num_active_chas, num_sockets, socket_id_);
 
         // Build core2cha_map: iterate column-major (matching CHA physical layout)
         // coremap_[i][j] < 0 means CHA ID = -(coremap_[i][j] + 1)
